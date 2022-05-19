@@ -587,6 +587,65 @@ test("object visit - complex iteration test", () => {
 });
 
 
+test("object visit - field removal - frozen object - on enter", () => {
+  const newObject = objVisit(Object.freeze({
+    name: "Wilson",
+    optional: true,
+  }), {
+    [OKind.FIELD]: {
+      enter: ( node, key, parent, path, ancestors) => {
+        if(key === "optional") {
+          return undefined;
+        }
+        return node;
+      },
+      leave: ( node, key, parent, path, ancestors) => {
+        if(key === "optional") {
+          return undefined;
+        }
+        return node;
+      },
+    },
+  });
+  expect(newObject).toBeDefined();
+  expect(newObject?.optional).not.toBeDefined();
+  expect(newObject?.name).toEqual("Wilson");
+});
+test("object visit - field removal - readonly object - on enter", () => {
+
+  const obj = Object.defineProperties({}, {
+    name: {
+      value: "Wilson",
+      writable: false,
+      enumerable: true,
+    },
+    optional: {
+      value: true,
+      writable: false,
+      enumerable: true,
+    }
+  });
+
+  const newObject = objVisit(obj, {
+    [OKind.FIELD]: {
+      enter: ( node, key, parent, path, ancestors) => {
+        if(key === "optional") {
+          return undefined;
+        }
+        return node;
+      },
+      leave: ( node, key, parent, path, ancestors) => {
+        if(key === "optional") {
+          return undefined;
+        }
+        return node;
+      },
+    },
+  });
+  expect(newObject).toBeDefined();
+  expect(newObject?.optional).not.toBeDefined();
+  expect(newObject?.name).toEqual("Wilson");
+});
 
 
 test("object visit - field removal - on enter", () => {
